@@ -45,7 +45,7 @@ class CustomTokenObtainSerializer(serializers.Serializer):
             user = authenticate(request=self.context.get('request'), email=email, password=password)
 
             if not user:
-                raise serializers.ValidationError('Invalid login credentials')
+                raise serializers.ValidationError({'email_passward': _('invalid email or password')})
         else:
             raise serializers.ValidationError('Must include "email" and "password".')
 
