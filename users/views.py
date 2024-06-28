@@ -9,6 +9,9 @@ from .serializers import (CustomTokenObtainSerializer, UserSerializer,
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from auth.settings import site_url
+from drf_yasg.utils import swagger_auto_schema
+
+
 
 User = get_user_model()
 
@@ -29,7 +32,7 @@ class CustomTokenObtainView(generics.CreateAPIView):
     
 
 
-
+@swagger_auto_schema(request_body=ResetPasswordRequestSerializer)
 class ResetPasswordRequestView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
@@ -51,7 +54,8 @@ class ResetPasswordRequestView(APIView):
             return Response({'error': 'Failed to send reset email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({'detail': 'Password reset email has been sent.'}, status=status.HTTP_200_OK)
-
+    
+@swagger_auto_schema(request_body=ResetPasswordRequestSerializer)
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
