@@ -2,13 +2,15 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import uuid
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, role='staff', password=None, **extra_fields):
         if not email:
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
-        user = self.model(email=email, first_name=first_name, last_name=last_name, role=role, **extra_fields)
+        #user = self.model(email=email, first_name=first_name, last_name=last_name, role=role, **extra_fields)
+        user = self.model(id=uuid.uuid4(), email=email, first_name=first_name, last_name=last_name, role=role, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -39,7 +41,7 @@ class CustomUser(AbstractUser):
         ('management', 'management'),
         ('tech_lead', 'tech_lead'),
     )
-
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
@@ -58,6 +60,7 @@ class CustomUser(AbstractUser):
 
 class Profile(models.Model):
     #create profile with signals
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="user_profile")
     profile_picture = models.ImageField(upload_to="media/documents/profile/", null=True, blank=True)
 

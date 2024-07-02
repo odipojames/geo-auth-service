@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from .models import Profile
 from .serializers import (CustomTokenObtainSerializer, UserSerializer, 
-                          ResetPasswordRequestSerializer, PasswordResetConfirmSerializer, ProfileSerializer)
+                          ResetPasswordRequestSerializer, PasswordResetConfirmSerializer, 
+                          ProfileSerializer,AdminSerializer)
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from auth.settings import site_url
@@ -21,20 +22,20 @@ class RegisterUserView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
 class CustomTokenObtainView(generics.CreateAPIView):
-    serializer_class = CustomTokenObtainSerializer
+    #serializer_class = CustomTokenObtainSerializer
     permission_classes = [AllowAny]
-
+    @swagger_auto_schema(request_body=CustomTokenObtainSerializer)
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = CustomTokenObtainSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         token_data = serializer.create(serializer.validated_data)
         return Response(token_data, status=status.HTTP_200_OK)
-    
 
 
-@swagger_auto_schema(request_body=ResetPasswordRequestSerializer)
+
 class ResetPasswordRequestView(APIView):
     permission_classes = [AllowAny]
+    @swagger_auto_schema(request_body=ResetPasswordRequestSerializer)
     def post(self, request, *args, **kwargs):
         serializer = ResetPasswordRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -53,11 +54,12 @@ class ResetPasswordRequestView(APIView):
         except Exception as e:
             return Response({'error': 'Failed to send reset email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response({'detail': 'Password reset email has been sent.'}, status=status.HTTP_200_OK)
+        return Response({'detail': 'Password reset email has been sent to your email.'}, status=status.HTTP_200_OK)
     
-@swagger_auto_schema(request_body=ResetPasswordRequestSerializer)
+
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
+    @swagger_auto_schema(request_body=PasswordResetConfirmSerializer)
     def post(self, request, *args, **kwargs):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -70,7 +72,7 @@ class ProfileUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    
     def get_object(self):
         return self.request.user.user_profile
     
@@ -87,4 +89,10 @@ class ProfileRetrieveView(generics.RetrieveAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    
+class RegisterAdminView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = AdminSerializer
+    permission_classes = [AllowAny]    
        

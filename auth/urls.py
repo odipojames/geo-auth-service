@@ -22,23 +22,24 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("users.urls")),
+    path("api/v1/", include("users.urls")),  # Add trailing slash here
     path(
-        "docs/",
+        "api/v1/docs/",
         schema_view.with_ui("swagger", cache_timeout=0),
         name="api-documentation",
     ),
     path(
-        "redoc/",
+        "api/v1/redoc/",
         schema_view.with_ui("redoc", cache_timeout=0),
         name="schema-redoc",
     ),
     path(
         "",
-        RedirectView.as_view(url="docs/", permanent=False),
+        RedirectView.as_view(url="api/v1/docs/", permanent=False),
         name="api_documentation",
     ),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

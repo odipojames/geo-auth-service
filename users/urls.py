@@ -1,13 +1,14 @@
 from django.urls import path
 from users.views import (RegisterUserView, CustomTokenObtainView, ResetPasswordRequestView, 
-                         PasswordResetConfirmView, ProfileUpdateView,ProfileListView, ProfileRetrieveView)
+                         PasswordResetConfirmView, ProfileUpdateView,ProfileListView, ProfileRetrieveView,RegisterAdminView)
 
 urlpatterns = [
-    path('api/register/', RegisterUserView.as_view(), name='register'),
-    path('api/login/', CustomTokenObtainView.as_view(), name='token_obtain_pair'),
-    path('api/reset-password/', ResetPasswordRequestView.as_view(), name='reset_password_request'),
-    path('api/confirm-reset-password/', PasswordResetConfirmView.as_view(), name='confirm_reset_password'),
-    path('api/profile/', ProfileUpdateView.as_view(), name='profile-update'),
-    path('api/profiles/', ProfileListView.as_view(), name='profile-list'),
-    path('api/profiles/<int:pk>/', ProfileRetrieveView.as_view(), name='profile-detail'),
+    path('register/', RegisterUserView.as_view(), name='register'),
+    path('register-admin/', RegisterAdminView.as_view(), name='register-admin'),
+    path('login/', CustomTokenObtainView.as_view(), name='token_obtain_pair'),
+    path('reset-password/', ResetPasswordRequestView.as_view(), name='reset_password_request'),
+    path('confirm-reset-password/', PasswordResetConfirmView.as_view(), name='confirm_reset_password'),
+    path('profile/', ProfileUpdateView.as_view(), name='profile-update'),
+    path('profiles/', ProfileListView.as_view(), name='profile-list'),
+    path('profiles/<int:pk>', ProfileRetrieveView.as_view(), name='profile-detail'),
 ]

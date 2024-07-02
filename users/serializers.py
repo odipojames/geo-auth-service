@@ -21,6 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'first_name', 'last_name', 'role','password')
+        extra_kwargs = {"id": {"read_only": True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -31,12 +32,14 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+    
+    
 
 class CustomTokenObtainSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     token = serializers.CharField(read_only=True)
-
+   
     def validate(self, attrs):
         email = attrs.get('email')
         password = attrs.get('password')
@@ -55,17 +58,15 @@ class CustomTokenObtainSerializer(serializers.Serializer):
    
     def create(self, validated_data):
         user = validated_data['user']
-        token = CustomAccessToken(user=user)
-        #token = AccessToken.for_user(user)
+        token = CustomAccessToken(user=user)  # Assuming you use the default AccessToken
         return {
-            'id': user.id,
+            'id': str(user.id),  # Convert UUID to string
             'email': user.email,
             'first_name': user.first_name,
             'last_name': user.last_name,
-            'role':user.role,
+            'role': user.role,
             'token': str(token),
         }
-    
 
 
 class ResetPasswordRequestSerializer(serializers.Serializer):
@@ -121,7 +122,7 @@ class UserSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'first_name', 'last_name', 'role']
-        read_only_fields = fields  #read-only
+        extra_kwargs = {"id": {"read_only": True}}
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -129,11 +130,36 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['id','profile_picture','user']
+        extra_kwargs = {"id": {"read_only": True},"user": {"read_only": True}}
 
     def update(self, instance, validated_data):
         instance.profile_picture = validated_data.get('profile_picture', instance.profile_picture)
         instance.save()
         return instance
+    
+
+    
+    
+class AdminSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all(), message="Email already taken")]
+    )
+    password = serializers.CharField( max_length=124, min_length=8, write_only=True, validators=[validate_password])
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'first_name', 'last_name','password')
+        extra_kwargs = {"id": {"read_only": True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_superuser(
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            password=validated_data['password']
+        )
+        return user    
 
 
 
