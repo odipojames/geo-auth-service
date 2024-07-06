@@ -6,6 +6,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.views.generic.base import RedirectView
+from users.admin import custom_admin_site
 
 
 schema_view = get_schema_view(
@@ -21,7 +22,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", custom_admin_site.urls),
     path("api/v1/", include("users.urls")),  # Add trailing slash here
     path(
         "api/v1/docs/",
